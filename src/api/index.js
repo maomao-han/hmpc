@@ -11,3 +11,18 @@ export const loginAPI = function (data) {
     data
   })
 }
+
+export const userInfoAPI = () => {
+  return request({
+    url: '/mp/v1_0/user/profile',
+    method: 'GET',
+    headers: {
+      Authorization: 'Bearer ' + sessionStorage.getItem('token')
+    }
+  })
+}
+
+export const channelListAPI = () => request({
+  url: '/mp/v1_0/channels',
+  method: 'GET'
+})

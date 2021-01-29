@@ -26,7 +26,7 @@
 
         <!-- 第四行: 登录按钮  -->
         <el-form-item>
-          <el-button class="login-btn" type="primary" @click="loginFn">登录</el-button>
+          <el-button class="login-btn" type="primary" @click="loginFn"  :loading="load">登录</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -39,18 +39,19 @@ export default {
   name: 'Login',
   data () {
     return {
+      load: false, // 加载样式
       form: {
-        mobile: '',
-        code: '',
+        mobile: '13911111111',
+        code: '246810',
         check: false
       },
-      rules: {
+      rules: { // 验证
         mobile: [
           {
             pattern: /^1[3|5|6|7|8|9]\d{9}$/,
             required: true,
             message: '请输入正确的手机号',
-            trigger: 'blur'
+            trigger: 'blur' // 失去焦点时触发
           }
         ],
 
@@ -59,12 +60,13 @@ export default {
             required: true,
             len: 6,
             message: '验证码必须是6位',
-            trigger: 'change'
+            trigger: 'change' // 一改变就触发
           }
         ],
         check: [
           {
             validator: (rule, value, callback) => {
+              // value勾选状态
               if (value === false) {
                 callback(new Error('请勾选协议'))
               } else {
@@ -79,10 +81,19 @@ export default {
   },
   methods: {
     loginFn () {
-      this.$refs.form.validate(async valid => {
-        if (valid === false) return
-        const res = await loginAPI(this.form)
-        console.log(res)
+      this.$refs.form.validate(async valid => { // 点击的时候判断表单验证是否都通过
+        if (valid === false) return // 如果为false直接return
+        this.load = true
+        // 注意:async 和 await要一起用,必须在同一个函数里面
+        const res = await loginAPI(this.form) // 如果验证通过,执行loginAPI
+        this.$message({ // 引用element-ui组件封装message提示框
+          message: '登录成功',
+          type: 'success'
+        })
+        this.load = false
+        // console.log(res)
+        sessionStorage.setItem('token', res.data.data.token)
+        this.$router.push('/layout') // 登录成功后跳转
       })
     }
   }
